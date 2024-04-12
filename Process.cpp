@@ -1,20 +1,20 @@
-// ListView.cpp
+// Process.cpp
 
-#include "ListView.h"
+#include "Process.h"
 
-void ListViewWindowDoubleClickFunction( LPCTSTR lpszItemText )
+void RunningListViewWindowDoubleClickFunction( LPCTSTR lpszItemText )
 {
 	// Display item text
 	MessageBox( NULL, lpszItemText, INFORMATION_MESSAGE_CAPTION, ( MB_OK | MB_ICONINFORMATION ) );
 
-} // End of function ListViewWindowDoubleClickFunction
+} // End of function RunningListViewWindowDoubleClickFunction
 
-void ListViewWindowItemSelectedFunction( LPCTSTR lpszItemText )
+void RunningListViewWindowItemSelectedFunction( LPCTSTR lpszItemText )
 {
 	// Show item text on status bar window
 	StatusBarWindowSetText( lpszItemText );
 
-} // End of function ListViewWindowItemSelectedFunction
+} // End of function RunningListViewWindowItemSelectedFunction
 
 int ShowAboutMessage( HWND hWndParent )
 {
@@ -61,12 +61,12 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 			hFont = ( HFONT )GetStockObject( DEFAULT_GUI_FONT );
 
 			// Create list view window
-			if( ListViewWindowCreate( hWndMain, hInstance ) )
+			if( RunningListViewWindowCreate( hWndMain, hInstance ) )
 			{
 				// Successfully created list view window
 
 				// Set list view window font
-				ListViewWindowSetFont( hFont );
+				RunningListViewWindowSetFont( hFont );
 
 				// Create status bar window
 				if( StatusBarWindowCreate( hWndMain, hInstance ) )
@@ -91,7 +91,7 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 			int nClientHeight;
 			RECT rcStatus;
 			int nStatusWindowHeight;
-			int nListViewWindowHeight;
+			int nRunningListViewWindowHeight;
 
 			// Store client width and height
 			nClientWidth	= ( int )LOWORD( lParam );
@@ -105,13 +105,13 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 
 			// Calculate window sizes
 			nStatusWindowHeight		= ( rcStatus.bottom - rcStatus.top );
-			nListViewWindowHeight	= ( nClientHeight - nStatusWindowHeight );
+			nRunningListViewWindowHeight	= ( nClientHeight - nStatusWindowHeight );
 
 			// Move list view window
-			ListViewWindowMove( 0, 0, nClientWidth, nListViewWindowHeight, TRUE );
+			RunningListViewWindowMove( 0, 0, nClientWidth, nRunningListViewWindowHeight, TRUE );
 
 			// Auto-size all list view window columns
-			ListViewWindowAutoSizeAllColumns();
+			RunningListViewWindowAutoSizeAllColumns();
 
 			// Break out of switch
 			break;
@@ -122,7 +122,7 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 			// An activate message
 
 			// Focus on list view window
-			ListViewWindowSetFocus();
+			RunningListViewWindowSetFocus();
 
 			// Break out of switch
 			break;
@@ -178,7 +178,7 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 						// Successfully got file path
 
 						// Add file path to list view window
-						ListViewWindowAddItem( lpszFilePath );
+						RunningListViewWindowAddItem( lpszFilePath );
 
 					} // End of successfully got file path
 
@@ -285,12 +285,12 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 			lpNmHdr = ( LPNMHDR )lParam;
 
 			// See if command message is from list view window
-			if( IsListViewWindow( lpNmHdr->hwndFrom ) )
+			if( IsRunningListViewWindow( lpNmHdr->hwndFrom ) )
 			{
 				// Command message is from list view window
 
 				// Handle command message from list view window
-				if( !( ListViewWindowHandleNotifyMessage( wParam, lParam, &ListViewWindowDoubleClickFunction, &ListViewWindowItemSelectedFunction ) ) )
+				if( !( RunningListViewWindowHandleNotifyMessage( wParam, lParam, &RunningListViewWindowDoubleClickFunction, &RunningListViewWindowItemSelectedFunction ) ) )
 				{
 					// Command message was not handled from list view window
 
@@ -439,7 +439,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 					lpszArgument[ nSizeNeeded ] = ( char )NULL;
 
 					// Add argument to list view window
-					ListViewWindowAddItem( lpszArgument );
+					RunningListViewWindowAddItem( lpszArgument );
 
 				}; // End of loop through arguments
 
@@ -455,10 +455,9 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 			UpdateWindow( hWndMain );
 
 			// Populate list view window
-			ListViewWindowAddFiles( ALL_FILES_FILTER );
 
 			// Auto-size all list view window columns
-			ListViewWindowAutoSizeAllColumns();
+			RunningListViewWindowAutoSizeAllColumns();
 
 			// Main message loop
 			while( GetMessage( &msg, NULL, 0, 0 ) > 0 )
