@@ -36,6 +36,8 @@
 																				"\r\n"								\
 																				"April 2024"
 
+#define PROCESS_FILE_NAME														"Process.txt"
+
 #define PROCESSES_STATUS_MESSAGE_FORMAT_STRING									"%d Processes"
 
 #define UNABLE_TO_REGISTER_MAIN_WINDOW_CLASS_ERROR_MESSAGE						"Unable to Register Main Window Class"

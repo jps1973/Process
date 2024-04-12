@@ -7,7 +7,7 @@ static HWND g_hWndDetailsListView;
 
 BOOL IsDetailsListViewWindow( HWND hWnd )
 {
-	// See if supplied window is list view window
+	// See if supplied window is details list view wimdow
 	return( hWnd == g_hWndDetailsListView );
 
 } // End of function IsDetailsListViewWindow
@@ -28,12 +28,70 @@ int DetailsListViewWindowAddItem( LPCTSTR lpszItemText )
 	lvItem.iSubItem		= DETAILS_LIST_VIEW_WINDOW_NAME_COLUMN_ID;
 	lvItem.pszText		= ( LPTSTR )lpszItemText;
 
-	// Add item to list view window
+	// Add item to details list view wimdow
 	nResult = SendMessage( g_hWndDetailsListView, LVM_INSERTITEM, ( WPARAM )lvItem.iItem, ( LPARAM )&lvItem );
 
 	return nResult;
 
 } // End of function DetailsListViewWindowAddItem
+
+int DetailsListViewWindowAddLine( LPCTSTR lpszName, LPCTSTR lpszDetails )
+{
+	int nResult;
+
+	LVFINDINFO lvFindInformation;
+	LVITEM lvItem;
+
+	// Clear list view item structure
+	ZeroMemory( &lvItem, sizeof( lvItem ) );
+
+	// Initialise list view item structure
+	lvItem.mask			= LVIF_TEXT;
+	lvItem.cchTextMax	= STRING_LENGTH;
+	lvItem.iItem		= 0;
+
+	// Clear list view find information structure
+	ZeroMemory( &lvFindInformation, sizeof( lvFindInformation ) );
+
+	// Initialise list view find information structure
+	lvFindInformation.flags	= LVFI_STRING;
+	lvFindInformation.psz	= lpszName;
+
+	// Attempt to find name on details list view window
+	nResult = SendMessage( g_hWndDetailsListView, LVM_FINDITEM, ( WPARAM )-1, ( LPARAM )&lvFindInformation );
+
+	// See if name was found on details list view window
+	if( nResult < 0 )
+	{
+		// Unable to find name on details list view window
+
+		// Update list view item structure for name
+		lvItem.iSubItem		= DETAILS_LIST_VIEW_WINDOW_NAME_COLUMN_ID;
+		lvItem.pszText		= ( LPTSTR )lpszName;
+
+		// Add name to details list view wimdow
+		nResult = SendMessage( g_hWndDetailsListView, LVM_INSERTITEM, ( WPARAM )lvItem.iItem, ( LPARAM )&lvItem );
+
+	} // End of unable to find name on details list view window
+
+	// Ensure that name was added to details list view wimdow
+	if( nResult >= 0 )
+	{
+		// Successfully added name to details list view wimdow
+
+		// Update list view item structure for details
+		lvItem.iItem		= nResult;
+		lvItem.iSubItem		= DETAILS_LIST_VIEW_WINDOW_DETAILS_COLUMN_ID;
+		lvItem.pszText		= ( LPTSTR )lpszDetails;
+
+		// Add name to details list view wimdow
+		SendMessage( g_hWndDetailsListView, LVM_SETITEM, ( WPARAM )lvItem.iItem, ( LPARAM )&lvItem );
+
+	} // End of successfully added name to details list view wimdow
+
+	return nResult;
+
+} // End of function DetailsListViewWindowAddLine
 
 int DetailsListViewWindowAutoSizeAllColumns()
 {
@@ -115,13 +173,13 @@ BOOL DetailsListViewWindowCreate( HWND hWndParent, HINSTANCE hInstance )
 {
 	BOOL bResult = FALSE;
 
-	// Create list view window
+	// Create details list view wimdow
 	g_hWndDetailsListView = ::CreateWindowEx( DETAILS_LIST_VIEW_WINDOW_EXTENDED_STYLE, DETAILS_LIST_VIEW_WINDOW_CLASS_NAME, DETAILS_LIST_VIEW_WINDOW_TEXT, DETAILS_LIST_VIEW_WINDOW_STYLE, 0, 0, 0, 0, hWndParent, ( HMENU )NULL, hInstance, NULL );
 
-	// Ensure that list view window was created
+	// Ensure that details list view wimdow was created
 	if( g_hWndDetailsListView )
 	{
-		// Successfully created list view window
+		// Successfully created details list view wimdow
 		LVCOLUMN lvColumn;
 		LPCTSTR lpszColumnTitles[] = DETAILS_LIST_VIEW_WINDOW_COLUMN_TITLES;
 
@@ -132,7 +190,7 @@ BOOL DetailsListViewWindowCreate( HWND hWndParent, HINSTANCE hInstance )
 		lvColumn.mask	= ( LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM );
 		lvColumn.cx		= DETAILS_LIST_VIEW_WINDOW_DEFAULT_COLUMN_WIDTH;
 
-		// Set extended list view window style
+		// Set extended details list view wimdow style
 		SendMessage( g_hWndDetailsListView, LVM_SETEXTENDEDLISTVIEWSTYLE, ( WPARAM )0, ( LPARAM )DETAILS_LIST_VIEW_WINDOW_EXTENDED_STYLE );
 
 		// Insert columns
@@ -149,7 +207,7 @@ BOOL DetailsListViewWindowCreate( HWND hWndParent, HINSTANCE hInstance )
 		// Update return value
 		bResult = TRUE;
 
-	} // End of successfully created list view window
+	} // End of successfully created details list view wimdow
 	return bResult;
 
 } // End of function DetailsListViewWindowCreate
@@ -186,7 +244,7 @@ BOOL DetailsListViewWindowGetItemText( int nWhichItem, int nWhichSubItem, LPTSTR
 
 BOOL DetailsListViewWindowGetRect( LPRECT lpRect )
 {
-	// Get list view window rect
+	// Get details list view wimdow rect
 	return ::GetWindowRect( g_hWndDetailsListView, lpRect );
 
 } // End of function DetailsListViewWindowGetRect
@@ -205,7 +263,7 @@ BOOL DetailsListViewWindowHandleNotifyMessage( WPARAM, LPARAM lParam, void( *lpD
 	{
 		case LVN_COLUMNCLICK:
 		{
-			// A list view window column click notification code
+			// A details list view wimdow column click notification code
 			LPNMLISTVIEW lpNmListView;
 
 			// Get list view notify message handler
@@ -220,7 +278,7 @@ BOOL DetailsListViewWindowHandleNotifyMessage( WPARAM, LPARAM lParam, void( *lpD
 			// Break out of switch
 			break;
 
-		} // End of a list view window column click notification code
+		} // End of a details list view wimdow column click notification code
 		case NM_DBLCLK:
 		{
 			// A double-click notify message
@@ -294,23 +352,172 @@ BOOL DetailsListViewWindowHandleNotifyMessage( WPARAM, LPARAM lParam, void( *lpD
 
 } // End of function DetailsListViewWindowHandleNotifyMessage
 
+int DetailsListViewWindowLoad( LPCTSTR lpszFileName )
+{
+	int nResult = 0;
+
+	HANDLE hFile;
+	
+	// Open file
+	hFile = CreateFile( lpszFileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL );
+
+	// Ensure that file was opened
+	if( hFile != INVALID_HANDLE_VALUE )
+	{
+		// Successfully opened file
+		DWORD dwFileSize;
+
+		// Get file size
+		dwFileSize = GetFileSize( hFile, NULL );
+
+		// Ensure that file size was got
+		if( dwFileSize != INVALID_FILE_SIZE )
+		{
+			// Successfully got file size
+
+			// Allocate string memory
+			LPTSTR lpszFileText = new char[ dwFileSize + sizeof( char ) ];
+
+			// Read file text
+			if( ReadFile( hFile, lpszFileText, dwFileSize, NULL, NULL ) )
+			{
+				// Successfully read file text
+				LPTSTR lpszLine;
+				LPTSTR lpszTab;
+
+				// Allocate string memory
+				LPTSTR lpszName		= new char[ STRING_LENGTH ];
+				LPTSTR lpszDetails	= new char[ STRING_LENGTH ];
+
+				// Terminate file text
+				lpszFileText[ dwFileSize ] = ( char )NULL;
+
+				// Get first line
+				lpszLine = strtok( lpszFileText, NEW_LINE_TEXT );
+
+				// Loop through all lines
+				while( lpszLine )
+				{
+					// Find tab character in line
+					lpszTab = strchr( lpszLine, ASCII_TAB_CHARACTER );
+
+					// See if tab character was found in line
+					if( lpszTab )
+					{
+						// Successfully found tab character in line
+
+						// Use text before tab character as name
+						lstrcpyn( lpszName, lpszLine, ( ( lpszTab - lpszLine ) + sizeof( char ) ) );
+
+						// Use text after tab as details
+						lstrcpy( lpszDetails, ( lpszTab + sizeof( char ) ) );
+
+					} // End of successfully found tab character in line
+					else
+					{
+						// Unable to find tab character in line
+
+						// Use entire line as name
+						lstrcpy( lpszName, lpszLine );
+
+						// Clear detaile
+						lpszDetails[ 0 ] = ( char )NULL;
+
+					} // End of unable to find tab character in line
+
+					// Add item to details list view wimdow
+					DetailsListViewWindowAddLine( lpszName, lpszDetails );
+
+					// Get next line
+					lpszLine = strtok( NULL, NEW_LINE_TEXT );
+
+				}; // End of loop through all lines
+
+				// Auto-size details list view window
+				DetailsListViewWindowAutoSizeAllColumns();
+
+				// Free string memory
+				delete [] lpszLine;
+				delete [] lpszDetails;
+
+			} // End of successfully read file text
+
+			// Free string memory
+			delete [] lpszFileText;
+
+		} // End of successfully got file size
+
+		// Close file
+		CloseHandle( hFile );
+
+	} // End of successfully opened file
+
+	return nResult;
+
+} // End of function DetailsListViewWindowLoad
+
 BOOL DetailsListViewWindowMove( int nX, int nY, int nWidth, int nHeight, BOOL bRepaint )
 {
-	// Move list view window
+	// Move details list view wimdow
 	return ::MoveWindow( g_hWndDetailsListView, nX, nY, nWidth, nHeight, bRepaint );
 
 } // End of function DetailsListViewWindowMove
 
+int DetailsListViewWindowSave( LPCTSTR lpszFileName )
+{
+	int nResult = 0;
+
+	HANDLE hFile;
+
+	// Open file
+	hFile = CreateFile( lpszFileName, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+
+	// Ensure that file was opened
+	if( hFile != INVALID_HANDLE_VALUE )
+	{
+		// Successfully opened file
+
+		/*
+		DWORD dwTextLength;
+		dwTextLength = GetWindowTextLength(hEdit);
+		// No need to bother if there's no text.
+		if(dwTextLength > 0)
+		{
+		LPSTR pszText;
+		DWORD dwBufferSize = dwTextLength + 1;
+		pszText = GlobalAlloc(GPTR, dwBufferSize);
+		if(pszText != NULL)
+		{
+		if(GetWindowText(hEdit, pszText, dwBufferSize))
+		{
+		DWORD dwWritten;
+		if(WriteFile(hFile, pszText, dwTextLength, &dwWritten, NULL))
+		bSuccess = TRUE;
+		}
+		GlobalFree(pszText);
+		}
+		}
+		*/
+
+		// Close file
+		CloseHandle( hFile );
+
+	} // End of successfully opened file
+
+	return nResult;
+
+} // End of function DetailsListViewWindowSave
+
 HWND DetailsListViewWindowSetFocus()
 {
-	// Focus on list view window
+	// Focus on details list view wimdow
 	return ::SetFocus( g_hWndDetailsListView );
 
 } // End of function DetailsListViewWindowSetFocus
 
 void DetailsListViewWindowSetFont( HFONT hFont )
 {
-	// Set list view window font
+	// Set details list view wimdow font
 	::SendMessage( g_hWndDetailsListView, WM_SETFONT, ( WPARAM )hFont, ( LPARAM )TRUE );
 
 } // End of function DetailsListViewWindowSetFont

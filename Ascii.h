@@ -39,6 +39,7 @@
 #define ASCII_QUESTION_MARK_CHARACTER											'?'
 #define ASCII_SEMICOLON_CHARACTER												';'
 #define ASCII_SPACE_CHARACTER													' '
+#define ASCII_TAB_CHARACTER														'\t'
 #define ASCII_TILDE_CHARACTER													'~'
 #define ASCII_UNDERSCORE_CHARACTER												'_'
  
@@ -78,5 +79,6 @@
 #define ASCII_QUESTION_MARK_STRING												"?"
 #define ASCII_SEMICOLON_STRING													";"
 #define ASCII_SPACE_STRING														" "
+#define ASCII_TAB_STRING														"\t"
 #define ASCII_TILDE_STRING														"~"
 #define ASCII_UNDERSCORE_STRING													"_"

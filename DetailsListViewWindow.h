@@ -11,7 +11,7 @@
 #define DETAILS_LIST_VIEW_WINDOW_CLASS_NAME										WC_LISTVIEW
 
 #define DETAILS_LIST_VIEW_WINDOW_EXTENDED_STYLE									LVS_EX_FULLROWSELECT
-#define DETAILS_LIST_VIEW_WINDOW_STYLE											( WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | WS_BORDER | LVS_REPORT )
+#define DETAILS_LIST_VIEW_WINDOW_STYLE											( WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | WS_BORDER | LVS_REPORT | LVS_SORTASCENDING )
 #define DETAILS_LIST_VIEW_WINDOW_TEXT											NULL
 
 #define DETAILS_LIST_VIEW_WINDOW_HEIGHT											100
@@ -32,6 +32,8 @@ BOOL IsDetailsListViewWindow( HWND hWnd );
 
 int DetailsListViewWindowAddItem( LPCTSTR lpszItemText );
 
+int DetailsListViewWindowAddLine( LPCTSTR lpszName, LPCTSTR lpszDetails );
+
 int DetailsListViewWindowAutoSizeAllColumns();
 
 int CALLBACK DetailsListViewWindowCompareProcedure( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort );
@@ -48,7 +50,11 @@ BOOL DetailsListViewWindowGetRect( LPRECT lpRect );
 
 BOOL DetailsListViewWindowHandleNotifyMessage( WPARAM wParam, LPARAM lParam, void( *lpDoubleClickFunction )( LPCTSTR lpszItemText ), void( *lpItemSelectedFunction )( LPCTSTR lpszItemText ) );
 
+int DetailsListViewWindowLoad( LPCTSTR lpszFileName );
+
 BOOL DetailsListViewWindowMove( int nX, int nY, int nWidth, int nHeight, BOOL bRepaint = TRUE );
+
+int DetailsListViewWindowSave( LPCTSTR lpszFileName );
 
 HWND DetailsListViewWindowSetFocus();
 

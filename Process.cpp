@@ -433,6 +433,9 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 			// Update main window
 			UpdateWindow( hWndMain );
 
+			// Load known process details
+			DetailsListViewWindowLoad( PROCESS_FILE_NAME );
+
 			// Populate running list view window
 			nProcessCount = RunningListViewWindowPopulate();
 
