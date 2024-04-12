@@ -6,6 +6,7 @@
 #include "Common.h"
 #include "Resource.h"
 
+#include "DetailsListViewWindow.h"
 #include "RunningListViewWindow.h"
 #include "StatusBarWindow.h"
 

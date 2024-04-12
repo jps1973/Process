@@ -60,25 +60,35 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 			// Get font
 			hFont = ( HFONT )GetStockObject( DEFAULT_GUI_FONT );
 
-			// Create running running list view window
+			// Create running list view window
 			if( RunningListViewWindowCreate( hWndMain, hInstance ) )
 			{
-				// Successfully created running running list view window
+				// Successfully created running list view window
 
-				// Set running running list view window font
+				// Set running list view window font
 				RunningListViewWindowSetFont( hFont );
 
-				// Create status bar window
-				if( StatusBarWindowCreate( hWndMain, hInstance ) )
+				// Create details list view window
+				if( DetailsListViewWindowCreate( hWndMain, hInstance ) )
 				{
-					// Successfully created status bar window
+					// Successfully created details list view window
 
-					// Set status bar window font
-					StatusBarWindowSetFont( hFont );
+					// Set details list view window font
+					DetailsListViewWindowSetFont( hFont );
 
-				} // End of successfully created status bar window
+					// Create status bar window
+					if( StatusBarWindowCreate( hWndMain, hInstance ) )
+					{
+						// Successfully created status bar window
 
-			} // End of successfully created running running list view window
+						// Set status bar window font
+						StatusBarWindowSetFont( hFont );
+
+					} // End of successfully created status bar window
+
+				} // End of successfully created details list view window
+
+			} // End of successfully created running list view window
 
 			// Break out of switch
 			break;
@@ -92,6 +102,7 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 			RECT rcStatus;
 			int nStatusWindowHeight;
 			int nRunningListViewWindowHeight;
+			int nDetailsListViewWindowTop;
 
 			// Store client width and height
 			nClientWidth	= ( int )LOWORD( lParam );
@@ -104,14 +115,19 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 			StatusBarWindowGetRect( &rcStatus );
 
 			// Calculate window sizes
-			nStatusWindowHeight		= ( rcStatus.bottom - rcStatus.top );
-			nRunningListViewWindowHeight	= ( nClientHeight - nStatusWindowHeight );
+			nStatusWindowHeight				= ( rcStatus.bottom - rcStatus.top );
+			nRunningListViewWindowHeight	= ( ( nClientHeight - nStatusWindowHeight ) - DETAILS_LIST_VIEW_WINDOW_HEIGHT + WINDOW_BORDER_HEIGHT );
 
-			// Move running list view window
+			// Calculate window positions
+			nDetailsListViewWindowTop		= ( nRunningListViewWindowHeight - WINDOW_BORDER_HEIGHT );
+
+			// Move control windows
 			RunningListViewWindowMove( 0, 0, nClientWidth, nRunningListViewWindowHeight, TRUE );
+			DetailsListViewWindowMove( 0, nDetailsListViewWindowTop, nClientWidth, DETAILS_LIST_VIEW_WINDOW_HEIGHT );
 
-			// Auto-size all running list view window columns
+			// Auto-size list view window columns
 			RunningListViewWindowAutoSizeAllColumns();
+			DetailsListViewWindowAutoSizeAllColumns();
 
 			// Break out of switch
 			break;

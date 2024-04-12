@@ -3,13 +3,12 @@
 #include "RunningListViewWindow.h"
 
 // Global variables
-HWND g_hWndListView;
-LPTSTR g_lpszParentFolderPath;
+static HWND g_hWndRunningListView;
 
 BOOL IsRunningListViewWindow( HWND hWnd )
 {
 	// See if supplied window is list view window
-	return( hWnd == g_hWndListView );
+	return( hWnd == g_hWndRunningListView );
 
 } // End of function IsRunningListViewWindow
 
@@ -25,12 +24,12 @@ int RunningListViewWindowAddItem( LPCTSTR lpszItemText )
 	// Initialise list view item structure
 	lvItem.mask			= LVIF_TEXT;
 	lvItem.cchTextMax	= STRING_LENGTH;
-	lvItem.iItem		= SendMessage( g_hWndListView, LVM_GETITEMCOUNT, ( WPARAM )NULL, ( LPARAM )NULL );
+	lvItem.iItem		= SendMessage( g_hWndRunningListView, LVM_GETITEMCOUNT, ( WPARAM )NULL, ( LPARAM )NULL );
 	lvItem.iSubItem		= RUNNING_LIST_VIEW_WINDOW_NAME_COLUMN_ID;
 	lvItem.pszText		= ( LPTSTR )lpszItemText;
 
 	// Add item to list view window
-	nResult = SendMessage( g_hWndListView, LVM_INSERTITEM, ( WPARAM )lvItem.iItem, ( LPARAM )&lvItem );
+	nResult = SendMessage( g_hWndRunningListView, LVM_INSERTITEM, ( WPARAM )lvItem.iItem, ( LPARAM )&lvItem );
 
 	return nResult;
 
@@ -46,7 +45,7 @@ int RunningListViewWindowAutoSizeAllColumns()
 	for( nWhichColumn = 0; nWhichColumn < RUNNING_LIST_VIEW_WINDOW_NUMBER_OF_COLUMNS; nWhichColumn ++ )
 	{
 		// Auto-size current column
-		if( SendMessage( g_hWndListView, LVM_SETCOLUMNWIDTH,( WPARAM )nWhichColumn, ( LPARAM )LVSCW_AUTOSIZE_USEHEADER ) )
+		if( SendMessage( g_hWndRunningListView, LVM_SETCOLUMNWIDTH,( WPARAM )nWhichColumn, ( LPARAM )LVSCW_AUTOSIZE_USEHEADER ) )
 		{
 			// Successfully auto-sized current column
 
@@ -92,14 +91,14 @@ int CALLBACK RunningListViewWindowCompareProcedure( LPARAM lParam1, LPARAM lPara
 	lvItem.pszText	= lpszBuffer1;
 
 	// Get first item text
-	SendMessage( g_hWndListView, LVM_GETITEMTEXT, ( WPARAM )lvItem.iItem, ( LPARAM )&lvItem );
+	SendMessage( g_hWndRunningListView, LVM_GETITEMTEXT, ( WPARAM )lvItem.iItem, ( LPARAM )&lvItem );
 
 	// Update list view item structure for second item
 	lvItem.iItem	= lParam2;
 	lvItem.pszText	= lpszBuffer2;
 
 	// Get second item text
-	SendMessage( g_hWndListView, LVM_GETITEMTEXT, ( WPARAM )lvItem.iItem, ( LPARAM )&lvItem );
+	SendMessage( g_hWndRunningListView, LVM_GETITEMTEXT, ( WPARAM )lvItem.iItem, ( LPARAM )&lvItem );
 
 	// Update return value
 	nResult = lstrcmp( lpszBuffer1, lpszBuffer2 );
@@ -117,10 +116,10 @@ BOOL RunningListViewWindowCreate( HWND hWndParent, HINSTANCE hInstance )
 	BOOL bResult = FALSE;
 
 	// Create list view window
-	g_hWndListView = ::CreateWindowEx( RUNNING_LIST_VIEW_WINDOW_EXTENDED_STYLE, RUNNING_LIST_VIEW_WINDOW_CLASS_NAME, RUNNING_LIST_VIEW_WINDOW_TEXT, RUNNING_LIST_VIEW_WINDOW_STYLE, 0, 0, 0, 0, hWndParent, ( HMENU )NULL, hInstance, NULL );
+	g_hWndRunningListView = ::CreateWindowEx( RUNNING_LIST_VIEW_WINDOW_EXTENDED_STYLE, RUNNING_LIST_VIEW_WINDOW_CLASS_NAME, RUNNING_LIST_VIEW_WINDOW_TEXT, RUNNING_LIST_VIEW_WINDOW_STYLE, 0, 0, 0, 0, hWndParent, ( HMENU )NULL, hInstance, NULL );
 
 	// Ensure that list view window was created
-	if( g_hWndListView )
+	if( g_hWndRunningListView )
 	{
 		// Successfully created list view window
 		LVCOLUMN lvColumn;
@@ -134,7 +133,7 @@ BOOL RunningListViewWindowCreate( HWND hWndParent, HINSTANCE hInstance )
 		lvColumn.cx		= RUNNING_LIST_VIEW_WINDOW_DEFAULT_COLUMN_WIDTH;
 
 		// Set extended list view window style
-		SendMessage( g_hWndListView, LVM_SETEXTENDEDLISTVIEWSTYLE, ( WPARAM )0, ( LPARAM )RUNNING_LIST_VIEW_WINDOW_EXTENDED_STYLE );
+		SendMessage( g_hWndRunningListView, LVM_SETEXTENDEDLISTVIEWSTYLE, ( WPARAM )0, ( LPARAM )RUNNING_LIST_VIEW_WINDOW_EXTENDED_STYLE );
 
 		// Insert columns
 		for( lvColumn.iSubItem = 0; lvColumn.iSubItem < RUNNING_LIST_VIEW_WINDOW_NUMBER_OF_COLUMNS; lvColumn.iSubItem ++ )
@@ -143,15 +142,9 @@ BOOL RunningListViewWindowCreate( HWND hWndParent, HINSTANCE hInstance )
 			lvColumn.pszText = ( LPTSTR )lpszColumnTitles[ lvColumn.iSubItem ];
 
 			// Insert column
-			SendMessage( g_hWndListView, LVM_INSERTCOLUMN, ( WPARAM )lvColumn.iSubItem, ( LPARAM )&lvColumn );
+			SendMessage( g_hWndRunningListView, LVM_INSERTCOLUMN, ( WPARAM )lvColumn.iSubItem, ( LPARAM )&lvColumn );
 
 		}; // End of loop to insert columns
-
-		// Allocate global string memory
-		g_lpszParentFolderPath = new char[ STRING_LENGTH ];
-
-		// Clear global parent folder path
-		g_lpszParentFolderPath[ 0 ] = ( char )NULL;
 
 		// Update return value
 		bResult = TRUE;
@@ -164,7 +157,7 @@ BOOL RunningListViewWindowCreate( HWND hWndParent, HINSTANCE hInstance )
 int RunningListViewWindowGetCurrentSelection()
 {
 	// Get current selection item
-	return ::SendMessage( g_hWndListView, LB_GETCURSEL, ( WPARAM )NULL, ( LPARAM )NULL );
+	return ::SendMessage( g_hWndRunningListView, LB_GETCURSEL, ( WPARAM )NULL, ( LPARAM )NULL );
 
 } // End of function RunningListViewWindowGetCurrentSelection
 
@@ -185,7 +178,7 @@ BOOL RunningListViewWindowGetItemText( int nWhichItem, int nWhichSubItem, LPTSTR
 	lvItem.pszText		= lpszItemText;
 
 	// Get item text
-	bResult = SendMessage( g_hWndListView, LVM_GETITEM, ( WPARAM )NULL, ( LPARAM )&lvItem );
+	bResult = SendMessage( g_hWndRunningListView, LVM_GETITEM, ( WPARAM )NULL, ( LPARAM )&lvItem );
 
 	return bResult;
 
@@ -194,7 +187,7 @@ BOOL RunningListViewWindowGetItemText( int nWhichItem, int nWhichSubItem, LPTSTR
 BOOL RunningListViewWindowGetRect( LPRECT lpRect )
 {
 	// Get list view window rect
-	return ::GetWindowRect( g_hWndListView, lpRect );
+	return ::GetWindowRect( g_hWndRunningListView, lpRect );
 
 } // End of function RunningListViewWindowGetRect
 
@@ -219,7 +212,7 @@ BOOL RunningListViewWindowHandleNotifyMessage( WPARAM, LPARAM lParam, void( *lpD
 			lpNmListView = ( LPNMLISTVIEW )lpNmHdr;
 
 			// Sort the list view
-			::SendMessage( g_hWndListView, LVM_SORTITEMSEX, ( WPARAM )( lpNmListView->iSubItem ), ( LPARAM )&RunningListViewWindowCompareProcedure );
+			::SendMessage( g_hWndRunningListView, LVM_SORTITEMSEX, ( WPARAM )( lpNmListView->iSubItem ), ( LPARAM )&RunningListViewWindowCompareProcedure );
 
 			// Update return value
 			bResult = TRUE;
@@ -237,7 +230,7 @@ BOOL RunningListViewWindowHandleNotifyMessage( WPARAM, LPARAM lParam, void( *lpD
 			LPTSTR lpszItemText = new char[ STRING_LENGTH ];
 
 			// Get selected item
-			nSelectedItem = SendMessage( g_hWndListView, LVM_GETNEXTITEM, ( WPARAM )-1, ( LPARAM )LVNI_FOCUSED );
+			nSelectedItem = SendMessage( g_hWndRunningListView, LVM_GETNEXTITEM, ( WPARAM )-1, ( LPARAM )LVNI_FOCUSED );
 
 			// Get selected item text
 			if( RunningListViewWindowGetItemText( nSelectedItem, RUNNING_LIST_VIEW_WINDOW_NAME_COLUMN_ID, lpszItemText ) )
@@ -304,7 +297,7 @@ BOOL RunningListViewWindowHandleNotifyMessage( WPARAM, LPARAM lParam, void( *lpD
 BOOL RunningListViewWindowMove( int nX, int nY, int nWidth, int nHeight, BOOL bRepaint )
 {
 	// Move list view window
-	return ::MoveWindow( g_hWndListView, nX, nY, nWidth, nHeight, bRepaint );
+	return ::MoveWindow( g_hWndRunningListView, nX, nY, nWidth, nHeight, bRepaint );
 
 } // End of function RunningListViewWindowMove
 
@@ -358,7 +351,7 @@ int RunningListViewWindowPopulate()
 			} // End of this is not the system idle process
 
 			// Add process to running list view window
-			nItem = SendMessage( g_hWndListView, LVM_INSERTITEM, ( WPARAM )lvItem.iItem, ( LPARAM )&lvItem );
+			nItem = SendMessage( g_hWndRunningListView, LVM_INSERTITEM, ( WPARAM )lvItem.iItem, ( LPARAM )&lvItem );
 
 			// Ensure that process was added to running list view window
 			if( nItem >= 0 )
@@ -374,7 +367,7 @@ int RunningListViewWindowPopulate()
 				lvItem.pszText		= lpszProcessID;
 
 				// Add process id to running list view window
-				nItem = SendMessage( g_hWndListView, LVM_SETITEM, ( WPARAM )lvItem.iItem, ( LPARAM )&lvItem );
+				nItem = SendMessage( g_hWndRunningListView, LVM_SETITEM, ( WPARAM )lvItem.iItem, ( LPARAM )&lvItem );
 
 				// Update list view item structure for next process
 				lvItem.iItem ++;
@@ -409,14 +402,14 @@ int RunningListViewWindowPopulate()
 HWND RunningListViewWindowSetFocus()
 {
 	// Focus on list view window
-	return ::SetFocus( g_hWndListView );
+	return ::SetFocus( g_hWndRunningListView );
 
 } // End of function RunningListViewWindowSetFocus
 
 void RunningListViewWindowSetFont( HFONT hFont )
 {
 	// Set list view window font
-	::SendMessage( g_hWndListView, WM_SETFONT, ( WPARAM )hFont, ( LPARAM )TRUE );
+	::SendMessage( g_hWndRunningListView, WM_SETFONT, ( WPARAM )hFont, ( LPARAM )TRUE );
 
 } // End of function RunningListViewWindowSetFont
 
@@ -437,7 +430,7 @@ BOOL RunningListViewWindowSetItemText( int nWhichItem, int nWhichSubItem, LPCTST
 	lvItem.pszText		= ( LPTSTR )lpszItemText;
 
 	// Set item text
-	bResult = SendMessage( g_hWndListView, LVM_SETITEM, ( WPARAM )NULL, ( LPARAM )&lvItem );
+	bResult = SendMessage( g_hWndRunningListView, LVM_SETITEM, ( WPARAM )NULL, ( LPARAM )&lvItem );
 
 	return bResult;
 
