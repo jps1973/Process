@@ -60,12 +60,12 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 			// Get font
 			hFont = ( HFONT )GetStockObject( DEFAULT_GUI_FONT );
 
-			// Create list view window
+			// Create running running list view window
 			if( RunningListViewWindowCreate( hWndMain, hInstance ) )
 			{
-				// Successfully created list view window
+				// Successfully created running running list view window
 
-				// Set list view window font
+				// Set running running list view window font
 				RunningListViewWindowSetFont( hFont );
 
 				// Create status bar window
@@ -78,7 +78,7 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 
 				} // End of successfully created status bar window
 
-			} // End of successfully created list view window
+			} // End of successfully created running running list view window
 
 			// Break out of switch
 			break;
@@ -107,10 +107,10 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 			nStatusWindowHeight		= ( rcStatus.bottom - rcStatus.top );
 			nRunningListViewWindowHeight	= ( nClientHeight - nStatusWindowHeight );
 
-			// Move list view window
+			// Move running list view window
 			RunningListViewWindowMove( 0, 0, nClientWidth, nRunningListViewWindowHeight, TRUE );
 
-			// Auto-size all list view window columns
+			// Auto-size all running list view window columns
 			RunningListViewWindowAutoSizeAllColumns();
 
 			// Break out of switch
@@ -121,7 +121,7 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 		{
 			// An activate message
 
-			// Focus on list view window
+			// Focus on running list view window
 			RunningListViewWindowSetFocus();
 
 			// Break out of switch
@@ -177,7 +177,7 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 					{
 						// Successfully got file path
 
-						// Add file path to list view window
+						// Add file path to running list view window
 						RunningListViewWindowAddItem( lpszFilePath );
 
 					} // End of successfully got file path
@@ -284,22 +284,22 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 			// Get notify message handler
 			lpNmHdr = ( LPNMHDR )lParam;
 
-			// See if command message is from list view window
+			// See if command message is from running list view window
 			if( IsRunningListViewWindow( lpNmHdr->hwndFrom ) )
 			{
-				// Command message is from list view window
+				// Command message is from running list view window
 
-				// Handle command message from list view window
+				// Handle command message from running list view window
 				if( !( RunningListViewWindowHandleNotifyMessage( wParam, lParam, &RunningListViewWindowDoubleClickFunction, &RunningListViewWindowItemSelectedFunction ) ) )
 				{
-					// Command message was not handled from list view window
+					// Command message was not handled from running list view window
 
 					// Call default procedure
 					lr = DefWindowProc( hWndMain, uMessage, wParam, lParam );
 
-				} // End of command message was not handled from list view window
+				} // End of command message was not handled from running list view window
 
-			} // End of command message is from list view window
+			} // End of command message is from running list view window
 			// Break out of switch
 			break;
 
@@ -397,8 +397,10 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 		{
 			// Successfully created main window
 			HMENU hMenuSystem;
-			LPWSTR *lpszArgumentList;
-			int nArgumentCount;
+			int nProcessCount;
+
+			// Allocate string memory
+			LPTSTR lpszStatusMessage = new char[ STRING_LENGTH ];
 
 			// Get system menu
 			hMenuSystem = GetSystemMenu( hWndMain, FALSE );
@@ -409,54 +411,22 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 			// Add about item to system menu
 			InsertMenu( hMenuSystem, SYSTEM_MENU_ABOUT_ITEM_POSITION, MF_BYPOSITION, IDM_HELP_ABOUT, SYSTEM_MENU_ABOUT_ITEM_TEXT );
 
-			// Get argument list
-			lpszArgumentList = CommandLineToArgvW( GetCommandLineW(), &nArgumentCount );
-
-			// Ensure that argument list was got
-			if( lpszArgumentList )
-			{
-				// Successfully got argument list
-				int nWhichArgument;
-				int nSizeNeeded;
-				int nWideArgumentLength;
-
-				// Allocate string memory
-				LPTSTR lpszArgument = new char[ STRING_LENGTH ];
-
-				// Loop through arguments
-				for( nWhichArgument = 1; nWhichArgument < nArgumentCount; nWhichArgument ++ )
-				{
-					// Get wide argument length
-					nWideArgumentLength = lstrlenW( lpszArgumentList[ nWhichArgument ] );
-
-					// Get size required for argument
-					nSizeNeeded = WideCharToMultiByte( CP_UTF8, 0, lpszArgumentList[ nWhichArgument ], nWideArgumentLength, NULL, 0, NULL, NULL );
-
-					// Convert argument to ansi
-					WideCharToMultiByte( CP_UTF8, 0, lpszArgumentList[ nWhichArgument ], nWideArgumentLength, lpszArgument, nSizeNeeded, NULL, NULL );
-
-					// Terminate argument
-					lpszArgument[ nSizeNeeded ] = ( char )NULL;
-
-					// Add argument to list view window
-					RunningListViewWindowAddItem( lpszArgument );
-
-				}; // End of loop through arguments
-
-				// Free string memory
-				delete [] lpszArgument;
-
-			} // End of successfully got argument list
-
 			// Show main window
 			ShowWindow( hWndMain, nCmdShow );
 
 			// Update main window
 			UpdateWindow( hWndMain );
 
-			// Populate list view window
+			// Populate running list view window
+			nProcessCount = RunningListViewWindowPopulate();
 
-			// Auto-size all list view window columns
+			// Format status message
+			wsprintf( lpszStatusMessage, PROCESSES_STATUS_MESSAGE_FORMAT_STRING, nProcessCount );
+
+			// Show status message on status bar window
+			StatusBarWindowSetText( lpszStatusMessage );
+
+			// Auto-size all running list view window columns
 			RunningListViewWindowAutoSizeAllColumns();
 
 			// Main message loop
@@ -469,6 +439,9 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 				DispatchMessage( &msg );
 
 			}; // End of main message loop
+
+			// Free string memory
+			delete [] lpszStatusMessage;
 
 		} // End of successfully created main window
 		else

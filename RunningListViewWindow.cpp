@@ -308,6 +308,104 @@ BOOL RunningListViewWindowMove( int nX, int nY, int nWidth, int nHeight, BOOL bR
 
 } // End of function RunningListViewWindowMove
 
+int RunningListViewWindowPopulate()
+{
+	int nResult = 0;
+
+	WTS_PROCESS_INFO *lpProcessInformation = NULL;
+	DWORD dwProcessCount = 0;
+
+	// Enumerate processes
+	if( WTSEnumerateProcesses( WTS_CURRENT_SERVER_HANDLE, 0, 1, &lpProcessInformation, &dwProcessCount ) ) 
+	{
+		// Successfully enumerated processes
+		DWORD dwWhichProcess;
+		LVITEM lvItem;
+		int nItem;
+
+		// Allocate string memory
+		LPTSTR lpszProcessID = new char[ STRING_LENGTH ];
+
+		// Clear list view item structure
+		ZeroMemory( &lvItem, sizeof( lvItem ) );
+
+		// Initialise list view item structure
+		lvItem.mask			= LVIF_TEXT;
+		lvItem.cchTextMax	= STRING_LENGTH;
+		lvItem.iItem		= 0;
+
+		// Loop through all processes
+		for( dwWhichProcess = 0; dwWhichProcess < dwProcessCount; dwWhichProcess ++ )
+		{
+			// See if this is the system idle process
+			if( lpProcessInformation[ dwWhichProcess ].ProcessId == RUNNING_LIST_VIEW_WINDOW_SYSTEM_IDLE_PROCESS_ID )
+			{
+				// This is the system idle process
+
+				// Update list view item structure for process name
+				lvItem.iSubItem		= RUNNING_LIST_VIEW_WINDOW_NAME_COLUMN_ID;
+				lvItem.pszText		= ( LPTSTR )RUNNING_LIST_VIEW_WINDOW_SYSTEM_IDLE_PROCESS_NAME;
+
+			} // End of this is the system idle process
+			else
+			{
+				// This is not the system idle process
+
+				// Update list view item structure for process name
+				lvItem.iSubItem		= RUNNING_LIST_VIEW_WINDOW_NAME_COLUMN_ID;
+				lvItem.pszText		= lpProcessInformation[ dwWhichProcess ].pProcessName;
+
+			} // End of this is not the system idle process
+
+			// Add process to running list view window
+			nItem = SendMessage( g_hWndListView, LVM_INSERTITEM, ( WPARAM )lvItem.iItem, ( LPARAM )&lvItem );
+
+			// Ensure that process was added to running list view window
+			if( nItem >= 0 )
+			{
+				// Successfully added process to running list view window
+
+				// Format process id
+				wsprintf( lpszProcessID, RUNNING_LIST_VIEW_WINDOW_PROCESS_ID_FORMAT_STRING, lpProcessInformation[ dwWhichProcess ].ProcessId );
+
+				// Update list view item structure for process id
+				lvItem.iItem		= nItem;
+				lvItem.iSubItem		= RUNNING_LIST_VIEW_WINDOW_ID_COLUMN_ID;
+				lvItem.pszText		= lpszProcessID;
+
+				// Add process id to running list view window
+				nItem = SendMessage( g_hWndListView, LVM_SETITEM, ( WPARAM )lvItem.iItem, ( LPARAM )&lvItem );
+
+				// Update list view item structure for next process
+				lvItem.iItem ++;
+
+				// Update return value
+				nResult ++;
+
+			} // End of successfully added process to running list view window
+
+		} // End of loop through all processes
+
+		// Free string memory
+		delete [] lpszProcessID;
+
+	} // End of successfully enumerated processes
+	else
+	{
+		// Unable to enumerate processes
+
+		// Display error message
+		MessageBox( NULL, RUNNING_LIST_VIEW_WINDOW_UNABBLE_TO_ENUMERATE_PROCESSES_ERROR_MESSAGE, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
+
+	} // End of unable to enumerate processes
+
+	// Free memory
+	WTSFreeMemory( lpProcessInformation );
+
+	return nResult;
+
+} // End of function RunningListViewWindowPopulate
+
 HWND RunningListViewWindowSetFocus()
 {
 	// Focus on list view window
