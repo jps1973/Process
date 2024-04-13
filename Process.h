@@ -40,5 +40,7 @@
 
 #define PROCESSES_STATUS_MESSAGE_FORMAT_STRING									"%d Processes"
 
+#define SEARCH_URL_FORMAT_STRING												"https://www.google.co.uk/search?q=%s"
+
 #define UNABLE_TO_REGISTER_MAIN_WINDOW_CLASS_ERROR_MESSAGE						"Unable to Register Main Window Class"
 #define UNABLE_TO_CREATE_MAIN_WINDOW_ERROR_MESSAGE								"Unable to Create Main Window"

@@ -4,8 +4,17 @@
 
 void RunningListViewWindowDoubleClickFunction( LPCTSTR lpszItemText )
 {
-	// Display item text
-	MessageBox( NULL, lpszItemText, INFORMATION_MESSAGE_CAPTION, ( MB_OK | MB_ICONINFORMATION ) );
+	// Allocate string memory
+	LPTSTR lpszUrl = new char[ STRING_LENGTH ];
+
+	// Format url
+	wsprintf( lpszUrl, SEARCH_URL_FORMAT_STRING, lpszItemText );
+
+	// Open url
+	ShellExecute( NULL, "open", lpszUrl, NULL, NULL, SW_SHOWNORMAL );
+
+	// Free string memory
+	delete [] lpszUrl;
 
 } // End of function RunningListViewWindowDoubleClickFunction
 
