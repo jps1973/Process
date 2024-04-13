@@ -518,31 +518,70 @@ int DetailsListViewWindowSave( LPCTSTR lpszFileName )
 	if( hFile != INVALID_HANDLE_VALUE )
 	{
 		// Successfully opened file
+		int nItemCount;
+		LVITEM lvItem;
 
-		/*
-		DWORD dwTextLength;
-		dwTextLength = GetWindowTextLength(hEdit);
-		// No need to bother if there's no text.
-		if(dwTextLength > 0)
+		// Allocate string memory
+		LPTSTR lpszItemText = new char[ STRING_LENGTH ];
+
+		// Clear list view item structure
+		ZeroMemory( &lvItem, sizeof( lvItem ) );
+
+		// Initialise list view item structure
+		lvItem.mask			= LVIF_TEXT;
+		lvItem.cchTextMax	= STRING_LENGTH;
+		lvItem.pszText		= lpszItemText;
+
+		// Count items on details list view window
+		nItemCount = SendMessage( g_hWndDetailsListView, LVM_GETITEMCOUNT, ( WPARAM )NULL, ( LPARAM )NULL );
+
+		// Loop through items on list view window
+		for( lvItem.iItem = 0; lvItem.iItem < nItemCount; lvItem.iItem ++ )
 		{
-		LPSTR pszText;
-		DWORD dwBufferSize = dwTextLength + 1;
-		pszText = GlobalAlloc(GPTR, dwBufferSize);
-		if(pszText != NULL)
-		{
-		if(GetWindowText(hEdit, pszText, dwBufferSize))
-		{
-		DWORD dwWritten;
-		if(WriteFile(hFile, pszText, dwTextLength, &dwWritten, NULL))
-		bSuccess = TRUE;
-		}
-		GlobalFree(pszText);
-		}
-		}
-		*/
+			// Loop through sub-items on list view window
+			for( lvItem.iSubItem = 0; lvItem.iSubItem < DETAILS_LIST_VIEW_WINDOW_NUMBER_OF_COLUMNS; lvItem.iSubItem ++ )
+			{
+				// Get item text
+				if( SendMessage( g_hWndDetailsListView, LVM_GETITEM, ( WPARAM )NULL, ( LPARAM )&lvItem ) )
+				{
+					// Successfully got item text
+
+					// See if this is the first item
+					if( lvItem.iSubItem > 0 )
+					{
+						// This is not the first item
+
+						// Write tab to file
+						WriteFile(hFile, ASCII_TAB_STRING, lstrlen( ASCII_TAB_STRING ), NULL, NULL );
+
+					} // End of this is not the first item
+
+					// Write item text to file
+					WriteFile(hFile, lpszItemText, lstrlen( lpszItemText ), NULL, NULL );
+
+				} // End of successfully got item text
+				else
+				{
+					// Unable to get item text
+
+					// Force exit from loops
+					lvItem.iItem = nItemCount;
+					lvItem.iSubItem = DETAILS_LIST_VIEW_WINDOW_NUMBER_OF_COLUMNS;
+
+				} // End of unable to get item text
+
+			}; // End of loop through sub-items on list view window
+
+			// Write new line to file
+			WriteFile(hFile, NEW_LINE_TEXT, lstrlen( NEW_LINE_TEXT ), NULL, NULL );
+
+		}; // End of loop through items on list view window
 
 		// Close file
 		CloseHandle( hFile );
+
+		// Free string memory
+		delete [] lpszItemText;
 
 	} // End of successfully opened file
 

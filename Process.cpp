@@ -348,6 +348,9 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 		{
 			// A close message
 
+			// Save details list view window
+			DetailsListViewWindowSave( PROCESS_FILE_NAME );
+
 			// Destroy main window
 			DestroyWindow( hWndMain );
 
