@@ -219,6 +219,48 @@ int DetailsListViewWindowGetCurrentSelection()
 
 } // End of function DetailsListViewWindowGetCurrentSelection
 
+BOOL DetailsListViewWindowGetDetails( LPCTSTR lpszName, LPTSTR lpszDetails )
+{
+	BOOL bResult = FALSE;
+
+	LVFINDINFO lvFindInformation;
+	int nWhichItem;
+
+	// Clear list view find information structure
+	ZeroMemory( &lvFindInformation, sizeof( lvFindInformation ) );
+
+	// Initialise list view find information structure
+	lvFindInformation.flags	= LVFI_STRING;
+	lvFindInformation.psz	= lpszName;
+
+	// Attempt to find name on details list view window
+	nWhichItem = SendMessage( g_hWndDetailsListView, LVM_FINDITEM, ( WPARAM )-1, ( LPARAM )&lvFindInformation );
+
+	// See if name was found on details list view window
+	if( nWhichItem >= 0 )
+	{
+		// Successfully found name on details list view window
+		LVITEM lvItem;
+
+		// Clear list view item structure
+		ZeroMemory( &lvItem, sizeof( lvItem ) );
+
+		// Initialise list view item structure
+		lvItem.mask			= LVIF_TEXT;
+		lvItem.cchTextMax	= STRING_LENGTH;
+		lvItem.iItem		= nWhichItem;
+		lvItem.iSubItem		= DETAILS_LIST_VIEW_WINDOW_DETAILS_COLUMN_ID;
+		lvItem.pszText		= lpszDetails;
+
+		// Get item text
+		bResult = SendMessage( g_hWndDetailsListView, LVM_GETITEM, ( WPARAM )NULL, ( LPARAM )&lvItem );
+
+	} // End of successfully found name on details list view window
+
+	return bResult;
+
+} // End of function DetailsListViewWindowGetDetails
+
 BOOL DetailsListViewWindowGetItemText( int nWhichItem, int nWhichSubItem, LPTSTR lpszItemText )
 {
 	BOOL bResult;

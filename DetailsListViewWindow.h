@@ -42,7 +42,7 @@ BOOL DetailsListViewWindowCreate( HWND hWndParent, HINSTANCE hInstance );
 
 int DetailsListViewWindowGetCurrentSelection();
 
-BOOL DetailsListViewWindowGetItemPath( int nWhichItem, LPTSTR lpszItemPath );
+BOOL DetailsListViewWindowGetDetails( LPCTSTR lpszName, LPTSTR lpszDetails );
 
 BOOL DetailsListViewWindowGetItemText( int nWhichItem, int nWhichSubItem, LPTSTR lpszItemText );
 

@@ -317,7 +317,9 @@ int RunningListViewWindowPopulate()
 		int nItem;
 
 		// Allocate string memory
-		LPTSTR lpszProcessID = new char[ STRING_LENGTH ];
+		LPTSTR lpszProcessID	= new char[ STRING_LENGTH ];
+		LPTSTR lpszDetails		= new char[ STRING_LENGTH ];
+		LPTSTR lpszName			= new char[ STRING_LENGTH ];
 
 		// Clear list view item structure
 		ZeroMemory( &lvItem, sizeof( lvItem ) );
@@ -335,18 +337,24 @@ int RunningListViewWindowPopulate()
 			{
 				// This is the system idle process
 
+				// Update name text
+				lstrcpy( lpszName, RUNNING_LIST_VIEW_WINDOW_SYSTEM_IDLE_PROCESS_NAME );
+
 				// Update list view item structure for process name
 				lvItem.iSubItem		= RUNNING_LIST_VIEW_WINDOW_NAME_COLUMN_ID;
-				lvItem.pszText		= ( LPTSTR )RUNNING_LIST_VIEW_WINDOW_SYSTEM_IDLE_PROCESS_NAME;
+				lvItem.pszText		= lpszName;
 
 			} // End of this is the system idle process
 			else
 			{
 				// This is not the system idle process
 
+				// Update name text
+				lstrcpy( lpszName, lpProcessInformation[ dwWhichProcess ].pProcessName );
+
 				// Update list view item structure for process name
 				lvItem.iSubItem		= RUNNING_LIST_VIEW_WINDOW_NAME_COLUMN_ID;
-				lvItem.pszText		= lpProcessInformation[ dwWhichProcess ].pProcessName;
+				lvItem.pszText		= lpszName;
 
 			} // End of this is not the system idle process
 
@@ -369,6 +377,20 @@ int RunningListViewWindowPopulate()
 				// Add process id to running list view window
 				nItem = SendMessage( g_hWndRunningListView, LVM_SETITEM, ( WPARAM )lvItem.iItem, ( LPARAM )&lvItem );
 
+				// Get details for process
+				if( DetailsListViewWindowGetDetails( lpszName, lpszDetails ) )
+				{
+					// Successfully got details for process
+
+					// Update list view item structure for process details
+					lvItem.iSubItem		= RUNNING_LIST_VIEW_WINDOW_DETAILS_COLUMN_ID;
+					lvItem.pszText		= lpszDetails;
+
+					// Add process details to running list view window
+					nItem = SendMessage( g_hWndRunningListView, LVM_SETITEM, ( WPARAM )lvItem.iItem, ( LPARAM )&lvItem );
+
+				} // End of successfully got details for process
+
 				// Update list view item structure for next process
 				lvItem.iItem ++;
 
@@ -381,6 +403,8 @@ int RunningListViewWindowPopulate()
 
 		// Free string memory
 		delete [] lpszProcessID;
+		delete [] lpszDetails;
+		delete [] lpszName;
 
 	} // End of successfully enumerated processes
 	else
@@ -388,7 +412,7 @@ int RunningListViewWindowPopulate()
 		// Unable to enumerate processes
 
 		// Display error message
-		MessageBox( NULL, RUNNING_LIST_VIEW_WINDOW_UNABBLE_TO_ENUMERATE_PROCESSES_ERROR_MESSAGE, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
+		MessageBox( NULL, RUNNING_LIST_VIEW_WINDOW_UNABLE_TO_ENUMERATE_PROCESSES_ERROR_MESSAGE, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
 
 	} // End of unable to enumerate processes
 
