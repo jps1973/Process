@@ -38,6 +38,8 @@ BOOL ListBoxWindowMove( int nX, int nY, int nWidth, int nHeight, BOOL bRepaint =
 
 int ListBoxWindowPopulate( HWND hWndMain );
 
+BOOL ListBoxWindowSave( LPCTSTR lpszFileName );
+
 HWND ListBoxWindowSetFocus();
 
 void ListBoxWindowSetFont( HFONT hFont );

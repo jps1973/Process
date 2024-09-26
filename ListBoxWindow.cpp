@@ -211,6 +211,87 @@ int ListBoxWindowPopulate( HWND hWndMain )
 
 } // End of function ListBoxWindowPopulate
 
+BOOL ListBoxWindowSave( LPCTSTR lpszFileName )
+{
+	BOOL bResult = FALSE;
+
+	HANDLE hFile;
+
+	// Create file
+	hFile = CreateFile( lpszFileName, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+
+	// Ensure that file was created
+	if( hFile != INVALID_HANDLE_VALUE )
+	{
+		// Successfully created file
+		int nItemCount;
+		int nWhichItem;
+
+		// Allocate string memory
+		LPTSTR lpszItemText = new char[ STRING_LENGTH ];
+
+		// Count items on list box window
+		nItemCount = SendMessage( g_hWndListBox, LB_GETCOUNT, ( WPARAM )NULL, ( LPARAM )NULL );
+
+		// Assume success
+		bResult = TRUE;
+
+		// Loop through items on list box window
+		for( nWhichItem = 0; nWhichItem < nItemCount; nWhichItem ++ )
+		{
+			// Get item text
+			if( SendMessage( g_hWndListBox, LB_GETTEXT, ( WPARAM )nWhichItem, ( LPARAM )lpszItemText ) != LB_ERR )
+			{
+				// Successfully got item text
+
+				// Write item text to file
+				if( WriteFile( hFile, lpszItemText, lstrlen( lpszItemText ), NULL, NULL ) )
+				{
+					// Successfully wrote item text to file
+
+					// Write new line text to file
+					WriteFile( hFile, NEW_LINE_TEXT, lstrlen( NEW_LINE_TEXT ), NULL, NULL );
+
+				} // End of successfully wrote item text to file
+				else
+				{
+					// Unable to write item text to file
+
+					// Update return value
+					bResult = FALSE;
+
+					// Force exit from loop
+					nWhichItem = nItemCount;
+
+				} // End of unable to write item text to file
+
+			} // End of successfully got item text
+			else
+			{
+				// Unable to get item text
+
+				// Update return value
+				bResult = FALSE;
+
+				// Force exit from loop
+				nWhichItem = nItemCount;
+
+			} // End of unable to get item text
+
+		}; // End of loop through items on list box window
+
+		// Free string memory
+		delete [] lpszItemText;
+
+		// Close file
+		CloseHandle( hFile );
+
+	} // End of successfully created file
+
+	return bResult;
+
+} // End of function ListBoxWindowSave
+
 HWND ListBoxWindowSetFocus()
 {
 	// Focus on list box window

@@ -34,6 +34,8 @@
 
 #define STRING_LENGTH															2048
 
+#define SAVE_FILE_NAME															"Process.txt"
+
 #define ABOUT_MESSAGE_CAPTION													"About"
 #define INFORMATION_MESSAGE_CAPTION												"Information"
 #define ERROR_MESSAGE_CAPTION													"Error"

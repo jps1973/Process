@@ -266,6 +266,9 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 		{
 			// A close message
 
+			// Save list box window
+			ListBoxWindowSave( SAVE_FILE_NAME );
+
 			// Destroy main window
 			DestroyWindow( hWndMain );
 
