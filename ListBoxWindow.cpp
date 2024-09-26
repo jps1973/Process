@@ -172,15 +172,22 @@ int ListBoxWindowPopulate( HWND hWndMain )
 			// Loop through all processes
 			do
 			{
-				// Add process name to list box window
-				if( ListBoxWindowAddString( pe32.szExeFile ) >= 0 )
+				// See if process is already on list box window
+				if( SendMessage( g_hWndListBox, LB_FINDSTRINGEXACT, ( WPARAM )-1, ( LPARAM )pe32.szExeFile ) == LB_ERR )
 				{
-					// Successfully added process name to list box window
+					// Process is not already on list box window
 
-					// Update return value
-					nResult ++;
+					// Add process name to list box window
+					if( ListBoxWindowAddString( pe32.szExeFile ) >= 0 )
+					{
+						// Successfully added process name to list box window
 
-				} // End of successfully added process name to list box window
+						// Update return value
+						nResult ++;
+
+					} // End of successfully added process name to list box window
+
+				} // End of process is not already on list box window
 
 			} while ( Process32Next( hProcessSnap, &pe32 ) );
 			
