@@ -4,6 +4,8 @@
 
 #include <windows.h>
 #include <commctrl.h>
+#include <tlhelp32.h>
+#include <tchar.h>
 
 #include "Ascii.h"
 #include "Common.h"
@@ -18,11 +20,11 @@
 
 #define LIST_VIEW_WINDOW_UNABLE_TO_SAVE_WARNING_MESSAGE							"Unable to save.\r\n\r\nDo you want to close?"
 
-#define LIST_VIEW_WINDOW_COLUMN_TITLES											{ "First" }
+#define LIST_VIEW_WINDOW_COLUMN_TITLES											{ "Name" }
 
 typedef enum
 {
-	LIST_VIEW_WINDOW_FIRST_COLUMN_ID = 0,
+	LIST_VIEW_WINDOW_NAME_COLUMN_ID = 0,
 
 	LIST_VIEW_WINDOW_NUMBER_OF_COLUMNS
 
@@ -50,7 +52,7 @@ BOOL ListViewWindowMove( int nX, int nY, int nWidth, int nHeight, BOOL bRepaint 
 
 int ListViewWindowLoad( LPCTSTR lpszFileName );
 
-int ListViewWindowPopulate( LPCTSTR lpszFileName );
+int ListViewWindowPopulate();
 
 int ListViewWindowSave( LPCTSTR lpszFileName );
 

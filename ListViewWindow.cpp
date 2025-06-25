@@ -437,7 +437,7 @@ int ListViewWindowLoad( LPCTSTR lpszFileName )
 				while( lpszLine )
 				{
 					// Update list view item structure for line
-					lvItem.iSubItem	= LIST_VIEW_WINDOW_FIRST_COLUMN_ID;
+					lvItem.iSubItem	= LIST_VIEW_WINDOW_NAME_COLUMN_ID;
 					lvItem.pszText	= lpszLine;
 
 					// Add line to list view window
@@ -488,15 +488,75 @@ int ListViewWindowLoad( LPCTSTR lpszFileName )
 
 } // End of function ListViewWindowLoad
 
-int ListViewWindowPopulate( LPCTSTR lpszFileName )
+int ListViewWindowPopulate()
 {
 	int nResult = 0;
 
 	// Clear list view window
 	SendMessage( g_hWndListView, LB_RESETCONTENT, ( WPARAM )NULL, ( LPARAM )NULL );
 
-	// Load file
-	nResult = ListViewWindowLoad( lpszFileName );
+	HANDLE hProcessSnapshot;
+
+	// Take snapshot of all processes
+	hProcessSnapshot = CreateToolhelp32Snapshot( TH32CS_SNAPPROCESS, 0 );
+
+	// Ensure that snapshot of all processes was taken
+	if( hProcessSnapshot != INVALID_HANDLE_VALUE )
+	{
+		// Successfully taken snapshot of all processes
+		PROCESSENTRY32 pe32;
+
+		// Clear process entry structure
+		ZeroMemory( &pe32, sizeof( pe32 ) );
+
+		// Initialise process entry structure
+		pe32.dwSize = sizeof( PROCESSENTRY32 );
+
+		// Get first process
+		if( Process32First( hProcessSnapshot, &pe32 ) )
+		{
+			// Successfully got first process
+			LVITEM lvItem;
+
+			// Clear list view item structure
+			ZeroMemory( &lvItem, sizeof( lvItem ) );
+
+			// Initialise list view item structure
+			lvItem.mask			= LVIF_TEXT;
+			lvItem.cchTextMax	= STRING_LENGTH;
+			lvItem.iItem		= 0;
+
+			// Loop through all processes
+			do
+			{
+				// Update list view item structure for name
+				lvItem.iSubItem		= LIST_VIEW_WINDOW_NAME_COLUMN_ID;
+				lvItem.pszText		= pe32.szExeFile;
+
+				// Add name to list view window
+				lvItem.iItem = SendMessage( g_hWndListView, LVM_INSERTITEM, ( WPARAM )lvItem.iItem, ( LPARAM )&lvItem );
+
+				// Ensure that name was added to list view window
+				if( lvItem.iItem >= 0 )
+				{
+					// Successfully added name to list view window
+
+					// Update return value
+					nResult ++;
+
+					// Update list view item structure for next item
+					lvItem.iItem ++;
+
+				} // End of successfully added name to list view window
+
+			} while( Process32Next( hProcessSnapshot, &pe32 ) ); // End of loop through all processes
+
+		} // End of successfully got first process
+
+		// Close snapshot of all processes
+		CloseHandle( hProcessSnapshot );
+
+	} // End of successfully taken snapshot of all processes
 
 	// Auto-size all list view window columns
 	ListViewWindowAutoSizeAllColumns();
@@ -539,7 +599,7 @@ int ListViewWindowSave( LPCTSTR lpszFileName )
 		for( lvItem.iItem = 0; lvItem.iItem < nItemCount; lvItem.iItem ++ )
 		{
 			// Update list view item structure for item
-			lvItem.iSubItem		= LIST_VIEW_WINDOW_FIRST_COLUMN_ID;
+			lvItem.iSubItem		= LIST_VIEW_WINDOW_NAME_COLUMN_ID;
 
 			// Get item text
 			if( SendMessage( g_hWndListView, LVM_GETITEM, ( WPARAM )NULL, ( LPARAM )&lvItem ) )

@@ -1,4 +1,4 @@
-// ListView.h
+// Process.h
 
 #pragma once
 
@@ -10,7 +10,7 @@
 #include "ListViewWindow.h"
 #include "StatusBarWindow.h"
 
-#define MAIN_WINDOW_CLASS_NAME													"Main ListView Window Class"
+#define MAIN_WINDOW_CLASS_NAME													"Main Process Window Class"
 
 #define MAIN_WINDOW_CLASS_STYLE													0
 #define MAIN_WINDOW_CLASS_ICON_NAME												IDI_APPLICATION
@@ -22,7 +22,7 @@
 
 #define MAIN_WINDOW_EXTENDED_STYLE												( WS_EX_WINDOWEDGE | WS_EX_ACCEPTFILES )
 #define MAIN_WINDOW_STYLE														WS_OVERLAPPEDWINDOW
-#define MAIN_WINDOW_TEXT														"ListView"
+#define MAIN_WINDOW_TEXT														"Process"
 
 #define MAIN_WINDOW_MINIMUM_WIDTH												320
 #define MAIN_WINDOW_MINIMUM_HEIGHT												200
@@ -31,13 +31,13 @@
 #define SYSTEM_MENU_ABOUT_ITEM_POSITION											6
 #define SYSTEM_MENU_ABOUT_ITEM_TEXT												"About"
 
-#define TEMPLATE_FILE_NAME														"ListView.txt"
+#define TEMPLATE_FILE_NAME														"Process.txt"
 
-#define ABOUT_MESSAGE_TEXT														"ListView\r\n"						\
+#define ABOUT_MESSAGE_TEXT														"Process\r\n"						\
 																				"\r\n"								\
 																				"Written by Jim Smith\r\n"			\
 																				"\r\n"								\
-																				"May 2025"
+																				"June 2025"
 
 #define UNABLE_TO_REGISTER_MAIN_WINDOW_CLASS_ERROR_MESSAGE						"Unable to Register Main Window Class"
 #define UNABLE_TO_CREATE_MAIN_WINDOW_ERROR_MESSAGE								"Unable to Create Main Window"

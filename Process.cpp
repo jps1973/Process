@@ -1,6 +1,6 @@
-// ListView.cpp
+// Process.cpp
 
-#include "ListView.h"
+#include "Process.h"
 
 int ShowAboutMessage( HWND hWndParent )
 {
@@ -127,55 +127,6 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 			break;
 
 		} // End of a get min max info message
-		case WM_DROPFILES:
-		{
-			// A drop files message
-			UINT uFileCount;
-			HDROP hDrop;
-			UINT uWhichFile;
-			UINT uFileSize;
-
-			// Allocate string memory
-			LPTSTR lpszFilePath = new char[ STRING_LENGTH + sizeof( char ) ];
-
-			// Get drop handle
-			hDrop = ( HDROP )wParam;
-
-			// Count dropped files
-			uFileCount = DragQueryFile( hDrop, ( UINT )-1, NULL, 0 );
-
-			// Loop through dropped files
-			for( uWhichFile = 0; uWhichFile < uFileCount; uWhichFile ++ )
-			{
-				// Get size of dropped file
-				uFileSize = DragQueryFile( hDrop, uWhichFile, NULL, 0 );
-
-				// Ensure that file size is valid
-				if( uFileSize != 0 )
-				{
-					// File size is valid
-
-					// Get file path
-					if( DragQueryFile( hDrop, uWhichFile, lpszFilePath, ( uFileSize + sizeof( char ) ) ) )
-					{
-						// Successfully got file path
-
-						// Add file path to list view window
-						ListViewWindowAddItem( lpszFilePath );
-
-					} // End of successfully got file path
-
-				} // End of file size is valid
-
-			}; // End of loop through dropped files
-
-			// Free string memory
-			delete [] lpszFilePath;
-
-			// Break out of switch
-			break;
-
-		} // End of a drop files message
 		case WM_COMMAND:
 		{
 			// A command message
@@ -437,8 +388,6 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 		{
 			// Successfully created main window
 			HMENU hMenuSystem;
-			LPWSTR *lpszArgumentList;
-			int nArgumentCount;
 			int nItemCount;
 
 			// Allocate string memory
@@ -453,45 +402,6 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 			// Add about item to system menu
 			InsertMenu( hMenuSystem, SYSTEM_MENU_ABOUT_ITEM_POSITION, MF_BYPOSITION, IDM_HELP_ABOUT, SYSTEM_MENU_ABOUT_ITEM_TEXT );
 
-			// Get argument list
-			lpszArgumentList = CommandLineToArgvW( GetCommandLineW(), &nArgumentCount );
-
-			// Ensure that argument list was got
-			if( lpszArgumentList )
-			{
-				// Successfully got argument list
-				int nWhichArgument;
-				int nSizeNeeded;
-				int nWideArgumentLength;
-
-				// Allocate string memory
-				LPTSTR lpszArgument = new char[ STRING_LENGTH + sizeof( char ) ];
-
-				// Loop through arguments
-				for( nWhichArgument = 1; nWhichArgument < nArgumentCount; nWhichArgument ++ )
-				{
-					// Get wide argument length
-					nWideArgumentLength = lstrlenW( lpszArgumentList[ nWhichArgument ] );
-
-					// Get size required for argument
-					nSizeNeeded = WideCharToMultiByte( CP_UTF8, 0, lpszArgumentList[ nWhichArgument ], nWideArgumentLength, NULL, 0, NULL, NULL );
-
-					// Convert argument to ansi
-					WideCharToMultiByte( CP_UTF8, 0, lpszArgumentList[ nWhichArgument ], nWideArgumentLength, lpszArgument, nSizeNeeded, NULL, NULL );
-
-					// Terminate argument
-					lpszArgument[ nSizeNeeded ] = ( char )NULL;
-
-					// Add argument to list view window
-					ListViewWindowAddItem( lpszArgument );
-
-				}; // End of loop through arguments
-
-				// Free string memory
-				delete [] lpszArgument;
-
-			} // End of successfully got argument list
-
 			// Show main window
 			ShowWindow( hWndMain, nCmdShow );
 
@@ -499,7 +409,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 			UpdateWindow( hWndMain );
 
 			// Populate list view window
-			nItemCount = ListViewWindowPopulate( TEMPLATE_FILE_NAME );
+			nItemCount = ListViewWindowPopulate();
 
 			// Format status message
 			wsprintf( lpszStatusMessage, LIST_VIEW_WINDOW_POPULATE_STATUS_MESSAGE_FORMAT_STRING, TEMPLATE_FILE_NAME, nItemCount );
