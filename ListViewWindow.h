@@ -20,11 +20,16 @@
 
 #define LIST_VIEW_WINDOW_UNABLE_TO_SAVE_WARNING_MESSAGE							"Unable to save.\r\n\r\nDo you want to close?"
 
-#define LIST_VIEW_WINDOW_COLUMN_TITLES											{ "Name" }
+#define LIST_VIEW_WINDOW_COLUMN_TITLES											{ "Name", "Path" }
+
+#define LIST_VIEW_WINDOW_UNABLE_TO_GET_FIRST_MODULE_INFORMATION_ERROR_MESSAGE	"[Unable to get first module information]"
+
+#define LIST_VIEW_WINDOW_UNABLE_TO_TAKE_SNAPSHOT_OF_ALL_MODULES_IN_PROCESS_ERROR_MESSAGE		"[Unable to take snapshot of all modules in process]"
 
 typedef enum
 {
 	LIST_VIEW_WINDOW_NAME_COLUMN_ID = 0,
+	LIST_VIEW_WINDOW_PATH_COLUMN_ID,
 
 	LIST_VIEW_WINDOW_NUMBER_OF_COLUMNS
 

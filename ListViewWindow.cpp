@@ -517,6 +517,11 @@ int ListViewWindowPopulate()
 		{
 			// Successfully got first process
 			LVITEM lvItem;
+			HANDLE hModuleSnapshot = INVALID_HANDLE_VALUE;
+			MODULEENTRY32 me32;
+
+			// Allocate string memory
+			LPTSTR lpszPath = new char[ STRING_LENGTH + sizeof( char ) ];
 
 			// Clear list view item structure
 			ZeroMemory( &lvItem, sizeof( lvItem ) );
@@ -541,6 +546,64 @@ int ListViewWindowPopulate()
 				{
 					// Successfully added name to list view window
 
+					// Take snapshot of all modules in process
+					hModuleSnapshot = CreateToolhelp32Snapshot( ( TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32 ), pe32.th32ProcessID );
+
+					// Ensure that snapshot of all modules in process was taken
+					if( hModuleSnapshot != INVALID_HANDLE_VALUE )
+					{
+						// Successfully taken snapshot of all modules in process
+
+						// Clear module entry structure
+						ZeroMemory( &me32, sizeof( me32 ) );
+
+						// Initialise module entry structure
+						me32.dwSize = sizeof( MODULEENTRY32 );
+
+						// Get first module information
+						if( Module32First( hModuleSnapshot, &me32 ) )
+						{
+							// Successfully got first module information
+
+							// Store module path
+							lstrcpy( lpszPath, me32.szExePath );
+
+						} // End of successfully got first module information
+						else
+						{
+							// Unable to get first module information
+
+							// Update path to indicate error
+							lstrcpy( lpszPath, LIST_VIEW_WINDOW_UNABLE_TO_GET_FIRST_MODULE_INFORMATION_ERROR_MESSAGE );
+
+						} // End of unable to get first module information
+
+						// Close snapshot of all modules in process
+						CloseHandle( hModuleSnapshot );
+
+					} // End of successfully taken snapshot of all modules in process
+					else
+					{
+						// Unable to take snapshot of all modules in process
+
+						// Update path to indicate error
+						lstrcpy( lpszPath, LIST_VIEW_WINDOW_UNABLE_TO_TAKE_SNAPSHOT_OF_ALL_MODULES_IN_PROCESS_ERROR_MESSAGE );
+
+					} // End of unable to take snapshot of all modules in process
+
+					// Update list view item structure for path
+					lvItem.iSubItem		= LIST_VIEW_WINDOW_PATH_COLUMN_ID;
+					lvItem.pszText		= lpszPath;
+
+					// Add path to list view window
+					lvItem.iItem = SendMessage( g_hWndListView, LVM_SETITEM, ( WPARAM )lvItem.iItem, ( LPARAM )&lvItem );
+
+					// Ensure that item is visible on list view window
+					SendMessage( g_hWndListView, LVM_ENSUREVISIBLE, ( WPARAM )lvItem.iItem, ( LPARAM )NULL );
+
+					// Update list view window
+					UpdateWindow( g_hWndListView );
+
 					// Update return value
 					nResult ++;
 
@@ -550,6 +613,9 @@ int ListViewWindowPopulate()
 				} // End of successfully added name to list view window
 
 			} while( Process32Next( hProcessSnapshot, &pe32 ) ); // End of loop through all processes
+
+			// Free string memory
+			delete [] lpszPath;
 
 		} // End of successfully got first process
 
